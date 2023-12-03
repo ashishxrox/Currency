@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Country Search</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&family=Roboto:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../static/file1.css">
+    <link rel="stylesheet" href="../static/loader.css">
+</head>
+
+<body>
+
+<div class="search-container">
+    <h1>Currency to Country Search</h1>
+    <form id="search-form" class="search-form">
+        <label for="currency">Enter Currency Code:</label>
+        <input type="text" id="currency" placeholder="USD, EUR, GBP, etc.">
+        <button type="button" onclick="search()">Search</button>
+    </form>
+    <div id="result"></div>
+    <div id="loader"></div>
+
+</div>
+
+<script>
+    async function search() {
+        var currencyInput = document.getElementById('currency').value.toUpperCase();
+        var resultElement = document.getElementById('result');
+        var loaderElement = document.getElementById('loader');
+
+        try {
+            // Show loader while fetching data
+            loaderElement.style.display = 'block';
+
+            const response = await fetch('/search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `currency=${currencyInput}`,
+            });
+
+            const data = await response.json();
+
+            // Hide loader after fetching data
+            loaderElement.style.display = 'none';
+
+            if (data.success) {
+                resultElement.innerHTML = `<p>Countries:</p><ul>${data.countries.map(country => 
+                    `<li>
+                        <div><span class="${country.flag_class}"></span></div>
+                        <div>Name: ${country.name}</div>
+                        <div>Capital: ${country.capital}</div>
+                    </li>`).join('')}</ul>`;
+            } else {
+                resultElement.innerHTML = 'Error fetching data. Please try again later.';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            resultElement.innerHTML = 'Error fetching data. Please try again later.';
+            // Hide loader in case of an error
+            loaderElement.style.display = 'none';
+        }
+    }
+</script>
+
+
+
+
+
+
+
+</body>
+</html>
